@@ -1,0 +1,10 @@
+
+services:
+  vite-game:
+    image: marcanthonyg/5f963517-713a-4b2c-b19a-dc6b4d0933bf:latest
+    container_name: pre-cqi
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
