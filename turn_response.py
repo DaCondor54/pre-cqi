@@ -87,7 +87,7 @@ class Constants:
 
 
 @dataclass
-class GameState:
+class GameStateResponse:
     tick: int
     player: Player
     bullets: List[Bullet]
