@@ -29,3 +29,27 @@ def compute_angle(current_position: Position, target_position:Position):
 def compute_end_position(position: Position, velocity: Velocity, delta_time:float)->Position:
     delta = Position(velocity.x * delta_time, velocity.y *delta_time)
     return Position(position.x + delta.x, position.y + delta.y)
+
+def will_hit(bullet:Bullet, flame:Flame, bullet_radius:float, flame_radius:float)->bool:
+    dx, dy = bullet.position.x - flame.position.x, bullet.position.y - flame.position.y
+    dvx, dvy = bullet.velocity.x - flame.velocity.x, bullet.velocity.y - flame.velocity.y
+    r = bullet_radius + flame_radius
+
+    a = dvx**2 + dvy**2
+    b = 2 * (dx * dvx + dy * dvy)
+    c = dx**2 + dy**2 - r**2
+
+    if a == 0:  # same velocity → static test
+        return c <= 0, 0.0
+
+    disc = b*b - 4*a*c
+    if disc < 0:
+        return False  # never collide
+
+    sqrt_disc = math.sqrt(disc)
+    t1 = (-b - sqrt_disc) / (2*a)
+    t2 = (-b + sqrt_disc) / (2*a)
+
+    # pick earliest non-negative time
+    return any(t >= 0 for t in (t1, t2))
+    
