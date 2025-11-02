@@ -7,6 +7,7 @@ from utils import *
 import dacite
 
 BULLET_SPEED = 200.0
+FIRE_SPEED = 4
 
 app = FastAPI()
 
@@ -49,13 +50,14 @@ def get_flame_target(turn_data: GameState) -> Flame:
     player_position = turn_data.player.position
     flames = turn_data.flames
     closest_flames = sort_flames_by_distance(player_position, flames)
-    safe_distance_threshold = closest_flames[0].hp * closest_flames[0].speed * 5
+    safe_distance_threshold = closest_flames[0].hp * closest_flames[0].speed * FIRE_SPEED
     for flame in closest_flames:
         if (euclidean_distance(player_position, flame.position) < safe_distance_threshold):
-            safe_distance_threshold += flame.hp * flame.speed * 5
+            safe_distance_threshold += flame.hp * flame.speed
             
     if(euclidean_distance(player_position, closest_flames[0].position) < safe_distance_threshold):
-        print("Chose closest flame")
+        if(closest_flames[0].type == 'campfire' and euclidean_distance(player_position, closest_flames[1].position) < safe_distance_threshold):
+            return get_closest_flame(player_position, closest_flames, with_campfire=False)
         return closest_flames[0]
     return get_closest_campfire(closest_flames) or closest_flames[0] or get_default_target(turn_data)
 
@@ -65,10 +67,10 @@ def get_closest_campfire(closest_flames: list[Flame]) -> Flame | None:
             return flame
     return None
 
-def get_closest_flame(position: Position, flames: list[Flame]) -> Flame:
+def get_closest_flame(position: Position, flames: list[Flame], with_campfire: bool) -> Flame:
     closest_flames = sort_flames_by_distance(position, flames)
     for flame in closest_flames:
-        if (not is_flame_dying_soon(flame, [])):
+        if (not is_flame_dying_soon(flame, []) and (with_campfire or flame.type != 'campfire')):
             return flame
     return closest_flames[0]
 
@@ -84,12 +86,8 @@ def get_closest_bullet_to_flame(flame: Flame, bullets: list[Bullet]) -> Bullet |
         return None
     closest_bullet = min(bullets, key=lambda b: euclidean_distance(flame.position, b.position))
     return closest_bullet
-def get_closest_flame(player_position: Position, flames: list[Flame]) -> Flame:
-    closest_flame = min(flames, key=lambda f: euclidean_distance(player_position, f.position))
-    return closest_flame
 
 def get_default_target(turn_data: GameState) -> Flame:
-    print("Chose default target", turn_data)
     spawn = turn_data.map.spawnPoints[0]
     spawn_position = Position(x=spawn.x + spawn.width / 2, y=spawn.y + spawn.height / 2)
     return Flame(position=spawn_position, id="", hp=0, velocity=Velocity(x=0,y=0), angle=0, speed=0, type='flame')
