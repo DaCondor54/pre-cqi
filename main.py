@@ -61,7 +61,7 @@ def get_flame_target(turn_data: GameState) -> Flame:
             
     if(euclidean_distance(player_position, closest_flames[0].position) < safe_distance_threshold):
         if(closest_flames[0].type == 'campfire' and len(closest_flames) > 1 and euclidean_distance(player_position, closest_flames[1].position) < safe_distance_threshold):
-            return get_closest_flame(player_position, closest_flames, with_campfire=False)
+            return get_closest_flame(player_position, closest_flames, with_campfire=False, bullets=turn_data.bullets)
         return get_closest_flame(player_position, closest_flames, with_campfire=True)
     return get_closest_campfire(closest_flames) or get_closest_flame(player_position, closest_flames, with_campfire=True) or get_default_target(turn_data)
 
@@ -76,10 +76,10 @@ def going_towards_player(flame: Flame, player_position: Position) -> bool:
     angle_diff = abs((flame.angle - flame_to_player_angle + 180) % 360 - 180)
     return angle_diff < 15.0  # within 15 degrees
 
-def get_closest_flame(position: Position, flames: list[Flame], with_campfire: bool) -> Flame:
+def get_closest_flame(position: Position, flames: list[Flame], bullets: list[Bullet], with_campfire: bool) -> Flame:
     closest_flames = sort_flames_by_distance(position, flames)
     for flame in closest_flames:
-        if (not is_flame_dying_soon(flame, []) and (with_campfire or flame.type != 'campfire')):
+        if (not is_flame_dying_soon(flame, bullets) and (with_campfire or flame.type != 'campfire')):
             return flame
     return closest_flames[0]
 
@@ -89,11 +89,11 @@ def sort_flames_by_distance(player_position: Position, flames: list[Flame]) -> l
 def is_flame_dying_soon(flame: Flame, bullets: list[Bullet]) -> bool:
     hp = flame.hp
     for bullet in bullets:
-        
-        # if hit:  hp -= 1 -> if hp <=0 return True
-        continue
-    
-    return False
+        if will_hit(bullet, flame, BULLET_RADIUS, FLAME_RADIUS) :
+            hp-=1
+            if hp<=0 or bullet.isSuper:
+                return True
+    return hp<=0    
 
 def get_closest_bullet_to_flame(flame: Flame, bullets: list[Bullet]) -> Bullet | None:
     if not bullets:
