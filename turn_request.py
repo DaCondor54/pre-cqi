@@ -1,12 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Literal
 
-
-@dataclass
-class Position:
-    x: float
-    y: float
-
+from common import Position
 
 @dataclass
 class Velocity:
