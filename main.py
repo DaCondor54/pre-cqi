@@ -7,7 +7,8 @@ from utils import *
 import dacite
 
 BULLET_SPEED = 200.0
-
+FLAME_RADIUS = 0
+BULLET_RADIUS = 0
 app = FastAPI()
 
 app.add_middleware(
@@ -25,6 +26,8 @@ def read_root():
 @app.post("/turn")
 def on_turn(turn_data: dict):
     gameState = dacite.from_dict(GameState, turn_data)
+    BULLET_RADIUS = gameState.constants.bulletRadius
+    FLAME_RADIUS = gameState.constants.flameRadius
     response = PlayerCommand(move=Move(direction=0.0, speed=0.0), debugPoints=[])
     handle_move(gameState, response)
     target = choose_target(gameState, response)
@@ -59,7 +62,12 @@ def sort_flames_by_distance(player_position: Position, flames: list[Flame]) -> l
     return sorted(flames, key=lambda f: euclidean_distance(player_position, f.position))
 
 def is_flame_dying_soon(flame: Flame, bullets: list[Bullet]) -> bool:
-    # check if a bullet to kill the flame
+    hp = flame.hp
+    for bullet in bullets:
+        
+        # if hit:  hp -= 1 -> if hp <=0 return True
+        continue
+    
     return False
 
 def get_closest_bullet_to_flame(flame: Flame, bullets: list[Bullet]) -> Bullet | None:
