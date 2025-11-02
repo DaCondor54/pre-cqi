@@ -56,8 +56,6 @@ def get_default_target(turn_data: GameState) -> Flame:
     return Flame(position=spawn_position, id="", hp=0, velocity=Velocity(x=0,y=0), angle=0, speed=0, type='flame')
 
 def shoot(target:Flame, turn_data: GameState, response: PlayerCommand):
-    print(target)
-    print(turn_data)
     player_position = turn_data.player.position
     target_position = target.position
     response.fire = compute_angle(player_position, target_position)
