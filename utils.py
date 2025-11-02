@@ -25,3 +25,7 @@ def compute_angle(current_position: Position, target_position:Position):
     angle_rad = math.atan2(dy, dx)
     angle_deg = math.degrees(angle_rad)
     return (angle_deg + 360.0) % 360.0
+
+def compute_end_position(position: Position, velocity: Velocity, delta_time:float)->Position:
+    delta = Position(velocity.x * delta_time, velocity.y *delta_time)
+    return Position(position.x + delta.x, position.y + delta.y)

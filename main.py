@@ -6,6 +6,8 @@ from turn_response import *
 from utils import *
 import dacite
 
+BULLET_SPEED = 200.0
+
 app = FastAPI()
 
 app.add_middleware(
@@ -95,7 +97,9 @@ def get_default_target(turn_data: GameState) -> Flame:
 def shoot(target:Flame, turn_data: GameState, response: PlayerCommand):
     player_position = turn_data.player.position
     target_position = target.position
-    response.fire = compute_angle(player_position, target_position)
+    dT = euclidean_distance(player_position, target_position) / BULLET_SPEED
+    prediction = compute_end_position(target_position, target.velocity, dT)
+    response.fire = compute_angle(player_position, prediction)
 
 if __name__ == "__main__":
     import uvicorn
