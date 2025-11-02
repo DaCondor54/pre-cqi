@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from turn_request import GameState
 
 app = FastAPI()
 
@@ -18,6 +19,7 @@ def read_root():
 @app.post("/turn")
 def on_turn(turn_data: dict):
     print("Received turn data:", turn_data)
+    gameState = GameState(**turn_data)
     response = {
         "reply": "This is a response to your turn.",
         "received_data": turn_data
