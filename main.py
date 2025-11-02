@@ -41,13 +41,18 @@ def choose_target(turn_data: GameState, response: PlayerCommand) -> Flame:
     player_position = Position(**turn_data.player.get("position", {}))
     flames = turn_data.flames
     if( not flames ):
-        return Flame(position=Position(x=0, y=0), id="", hp=0, velocity=Velocity(x=0,y=0), angle=0, speed=0, type='flame')
+        return get_default_target(turn_data)
     closest_flame = get_closest_flame(player_position, flames)
     return closest_flame
 
 def get_closest_flame(player_position: Position, flames: list[Flame]) -> Flame:
     closest_flame = min(flames, key=lambda f: _euclidean_distance(player_position, f.get("position", {})))
     return closest_flame
+
+def get_default_target(turn_data: GameState) -> Flame:
+    spawn = turn_data.map.spawnPoints[0]
+    spawn_position = Position(x=spawn.x + spawn.width / 2, y=spawn.y + spawn.height / 2)
+    return Flame(position=spawn_position, id="", hp=0, velocity=Velocity(x=0,y=0), angle=0, speed=0, type='flame')
 
 def shoot(target:Flame, turn_data: GameState, response: PlayerCommand) -> dict:
     # Implement your shooting logic here
