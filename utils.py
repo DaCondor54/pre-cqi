@@ -10,7 +10,7 @@ def _as_position(obj):
         return Position(**obj)
     raise TypeError(f"Cannot convert to Position: {type(obj)}")
 
-def _euclidean_distance(a, b) -> float:
+def euclidean_distance(a, b) -> float:
     pa = _as_position(a)
     pb = _as_position(b)
     dx = pa.x - pb.x
