@@ -43,9 +43,28 @@ def choose_target(turn_data: GameState, response: PlayerCommand) -> Flame:
     flames = turn_data.flames
     if( not flames ):
         return get_default_target(turn_data)
-    closest_flame = get_closest_flame(player_position, flames)
+    closest_flames = sort_flames_by_distance(player_position, flames)
+    for flame in closest_flames:
+        if (not is_flame_dying_soon(flame, turn_data.bullets)):
+            return flame
+    return closest_flames[0]
+
+def get_closest_flame(position: Position, flames: list[Flame]) -> Flame:
+    closest_flame = min(flames, key=lambda f: euclidean_distance(position, f.position))
     return closest_flame
 
+def sort_flames_by_distance(player_position: Position, flames: list[Flame]) -> list[Flame]:
+    return sorted(flames, key=lambda f: euclidean_distance(player_position, f.position))
+
+def is_flame_dying_soon(flame: Flame, bullets: list[Bullet]) -> bool:
+    # check if a bullet to kill the flame
+    return False
+
+def get_closest_bullet_to_flame(flame: Flame, bullets: list[Bullet]) -> Bullet | None:
+    if not bullets:
+        return None
+    closest_bullet = min(bullets, key=lambda b: euclidean_distance(flame.position, b.position))
+    return closest_bullet
 def get_closest_flame(player_position: Position, flames: list[Flame]) -> Flame:
     closest_flame = min(flames, key=lambda f: euclidean_distance(player_position, f.position))
     return closest_flame
