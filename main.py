@@ -3,7 +3,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from turn_request import *
 from turn_response import *
-from utils import _euclidean_distance
+from utils import *
+import dacite
 
 app = FastAPI()
 
@@ -21,8 +22,8 @@ def read_root():
 
 @app.post("/turn")
 def on_turn(turn_data: dict):
-    gameState = GameState(**turn_data)
-    response = PlayerCommand(move=Move(direction=0.0, speed=0.0))
+    gameState = dacite.from_dict(GameState, turn_data)
+    response = PlayerCommand(move=Move(direction=0.0, speed=0.0), debugPoints=[])
     handle_move(gameState, response)
     target = choose_target(gameState, response)
     shoot(target, gameState, response)
@@ -38,7 +39,7 @@ def handle_move(turn_data: GameState, response: PlayerCommand):
 
 # choose target (enemy or door)
 def choose_target(turn_data: GameState, response: PlayerCommand) -> Flame:
-    player_position = Position(**turn_data.player.get("position", {}))
+    player_position = turn_data.player.position
     flames = turn_data.flames
     if( not flames ):
         return get_default_target(turn_data)
@@ -46,7 +47,7 @@ def choose_target(turn_data: GameState, response: PlayerCommand) -> Flame:
     return closest_flame
 
 def get_closest_flame(player_position: Position, flames: list[Flame]) -> Flame:
-    closest_flame = min(flames, key=lambda f: _euclidean_distance(player_position, f.get("position", {})))
+    closest_flame = min(flames, key=lambda f: euclidean_distance(player_position, f.position))
     return closest_flame
 
 def get_default_target(turn_data: GameState) -> Flame:
@@ -54,9 +55,12 @@ def get_default_target(turn_data: GameState) -> Flame:
     spawn_position = Position(x=spawn.x + spawn.width / 2, y=spawn.y + spawn.height / 2)
     return Flame(position=spawn_position, id="", hp=0, velocity=Velocity(x=0,y=0), angle=0, speed=0, type='flame')
 
-def shoot(target:Flame, turn_data: GameState, response: PlayerCommand) -> dict:
-    # Implement your shooting logic here
-    pass
+def shoot(target:Flame, turn_data: GameState, response: PlayerCommand):
+    print(target)
+    print(turn_data)
+    player_position = turn_data.player.position
+    target_position = target.position
+    response.fire = compute_angle(player_position, target_position)
 
 if __name__ == "__main__":
     import uvicorn

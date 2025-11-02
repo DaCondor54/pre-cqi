@@ -47,6 +47,10 @@ class SpawnPoint:
     width: float
     height: float
 
+@dataclass
+class MapSize:
+    width: float
+    height: float
 
 @dataclass
 class DebugPoint:
@@ -57,7 +61,7 @@ class DebugPoint:
 
 @dataclass
 class MapData:
-    size: SpawnPoint  # width/height only; reused type for simplicity
+    size: MapSize  # width/height only; reused type for simplicity
     spawnPoints: List[SpawnPoint]
     seed: int
     debugPoints: List[DebugPoint]
