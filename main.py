@@ -30,6 +30,8 @@ def on_turn(turn_data: dict):
 # choose where to go (escape or go to powerup)
 def handle_move(turn_data: GameState, response: PlayerCommand):
     # Implement your move handling logic here
+    response.move.direction = 180
+    response.move.speed = 1
     pass
 
 # choose target (enemy or door)
@@ -44,4 +46,4 @@ def shoot(target:Flame, turn_data: GameState, response: PlayerCommand) -> dict:
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=3000)
+    uvicorn.run("main:app", host="0.0.0.0", port=3000, reload=True)
