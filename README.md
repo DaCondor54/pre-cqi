@@ -1,5 +1,9 @@
-# To Install dep
+# CQI Project
+
+## Install Dependencies
 
 ` pip install -r requirements.txt`
 
-`uvicorn main:app --reload --port=3000`
+## Run
+
+` uvicorn main:app --port 3000 --reload`
